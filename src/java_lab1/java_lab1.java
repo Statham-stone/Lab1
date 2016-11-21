@@ -12,7 +12,7 @@ package java_lab1;
 import java.util.regex.*;
 
 public class java_lab1 
-{
+{ 
 	final static double EPS=1e-6;//判断某double是否为0用
 	final static int MAX_NUMEBR = 1000;//最大支持项数
 	final static int BIG_NUMEBR = 30;//变量数
@@ -20,7 +20,7 @@ public class java_lab1
 	static int exponent_matrix[][];//存储次方数据
 	static double coefficient_array[];//存储系数
 
-	public static boolean zero(double a)
+	public static  boolean zero(double a)
 	{
 		return (a<EPS)&&(a>-EPS);
 	}
@@ -72,7 +72,7 @@ public class java_lab1
 			return false;
 		}//对括号的判别
 		
-		return true;
+	  	return true;
 	}
 	
 	public static String initialize(String a)//对字符串进行预处理
@@ -90,7 +90,7 @@ public class java_lab1
 		a=a.replaceAll("([0-9a-zA-Z])(\\()", "$1*$2");//数字/字母乘括号
 
 		a=a.replaceAll("(\\))([A-Za-z0-9])", "$1*$2");//括号乘字母/数字
-		//注意上面一定要选择非贪心模式
+	   	//注意上面一定要选择非贪心模式
 		a=a.replaceAll("\\)\\(",")*(");//括号乘括号
 	    System.out.println(a);		
 		a=a.replace("-","+%*");//用%代表-1,将其视为一个新的数字
@@ -312,40 +312,44 @@ public class java_lab1
 	
 	public static String simplify(String command)//矩阵中进行化简运算
 	{
-		int matrix_calculate[][]=new int[MAX_NUMEBR][BIG_NUMEBR];
-		double coefficient_calculate[]=new double[MAX_NUMEBR];
-		for(int i=0;i<MAX_NUMEBR;i++)
+		if(command.matches("^!simplify[\\s]+([a-zA-Z]=[-0-9.]+[\\s]*)+$"))
 		{
-			coefficient_calculate[i]=coefficient_array[i];
-		}
-		for(int i=0;i<MAX_NUMEBR;i++)
-		{
-			for(int j=0;j<BIG_NUMEBR;j++)
+			int matrix_calculate[][]=new int[MAX_NUMEBR][BIG_NUMEBR];
+			double coefficient_calculate[]=new double[MAX_NUMEBR];
+			for(int i=0;i<MAX_NUMEBR;i++)
 			{
-				matrix_calculate[i][j]=exponent_matrix[i][j];
+				coefficient_calculate[i]=coefficient_array[i];
 			}
-		}
-		
-		command=command.replaceAll("^!simplify[\\s]*","");
-		//while (command.contains("  "))
-		//{
-			command=command.replaceAll("  "," ");
-//		}
-		String command_list[]=command.split(" ");
-		for(int i=0;i<command_list.length;i++)
-		{
-			int index=command_list[i].charAt(0)-'a';
-			double value=Double.parseDouble(command_list[i].substring(2));
-			for(int j=0;j<MAX_NUMEBR;j++)
+			for(int i=0;i<MAX_NUMEBR;i++)
 			{
-				if(!zero(coefficient_calculate[j])&&matrix_calculate[j][index]!=0)
+				for(int j=0;j<BIG_NUMEBR;j++)
 				{
-					coefficient_calculate[j]*=Math.pow(value, matrix_calculate[j][index]);
+					matrix_calculate[i][j]=exponent_matrix[i][j];
 				}
-				matrix_calculate[j][index]=0;
 			}
+			
+			command=command.replaceAll("^!simplify[\\s]*","");
+			//while (command.contains("  "))
+			//{
+				command=command.replaceAll("  "," ");
+//			}
+			String command_list[]=command.split(" ");
+			for(int i=0;i<command_list.length;i++)
+			{
+				int index=command_list[i].charAt(0)-'a';
+				double value=Double.parseDouble(command_list[i].substring(2));
+				for(int j=0;j<MAX_NUMEBR;j++)
+				{
+					if(!zero(coefficient_calculate[j])&&matrix_calculate[j][index]!=0)
+					{
+						coefficient_calculate[j]*=Math.pow(value, matrix_calculate[j][index]);
+					}
+					matrix_calculate[j][index]=0;
+				}
+			}
+			return matrix_to_string(matrix_calculate, coefficient_calculate);	
 		}
-		return matrix_to_string(matrix_calculate, coefficient_calculate);			
+		return "Syntax Error";		
 	}
 	
 	public static String deriative(String command)//矩阵中进行求导运算
@@ -356,26 +360,13 @@ public class java_lab1
 		double coefficient_calculate[]=new double[MAX_NUMEBR];
 		for(int i=0;i<MAX_NUMEBR;i++)
 		{
-			coefficient_calculate[i]=coefficient_array[i];
-		}
-		for(int i=0;i<MAX_NUMEBR;i++)
-		{
-			for(int j=0;j<BIG_NUMEBR;j++)
+			coefficient_array[i]*=exponent_matrix[i][index];
+			if(exponent_matrix[i][index]!=0)
 			{
-				matrix_calculate[i][j]=exponent_matrix[i][j];
+				exponent_matrix[i][index]--;
 			}
-		}
-
-		for(int i=0;i<MAX_NUMEBR;i++)
-		{
-			coefficient_calculate[i]*=matrix_calculate[i][index];
-			if(matrix_calculate[i][index]!=0)
-			{
-				matrix_calculate[i][index]--;
-			}
-		}
-		
-		return matrix_to_string(matrix_calculate, coefficient_calculate);
+		} 
+		return matrix_to_string(exponent_matrix, coefficient_array);
 	}
 		
 	public static void all_else()
@@ -387,7 +378,7 @@ public class java_lab1
 		//!simplify a=1.001 b=1.5 c=1.333 d=0 f=1 g=2 h=10
 		//!simplify a=1.001 b=1.5 c=1.333   g=2 h=10//这个会出现误差，不要拿这个颜演示 
 		while(!syntax_check(a))
-		{
+		{ 
 			System.out.println("Syntax error! Input again");
 			a=myinput.read_string();			
 		}
@@ -403,7 +394,7 @@ public class java_lab1
 	public static void main(String args[])
 	{
 		all_else();
-		System.out.println(simplify("!simplify a=1."));
+		System.out.println(deriative("!d/da"));
 //		String command="";		
 //		while(true)
 //		{
