@@ -430,7 +430,7 @@ public class Javlab1 {
      *            string
      */
     final String deriative(final String command) { // 矩阵中进行求导运算
-        int index = command.charAt('4') - 'a';
+        int index = command.charAt(4) - 'a';
 
         int[][] matrixCalculate = new int[maxNumber][bigNumber];
         double[] coefficientCalculate = new double[maxNumber];
